@@ -31,5 +31,6 @@ declare module 'vue' {
     ATextarea: typeof import('ant-design-vue/es')['Textarea']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SvgIcon: typeof import('./src/components/svgIcon/index.vue')['default']
   }
 }
