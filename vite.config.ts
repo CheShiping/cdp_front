@@ -23,22 +23,21 @@ export default defineConfig(({ mode }) => {
       }
     },
     plugins: [
-    vue(),
-    vueDevTools(),
-    vueSetupExtend(),
-    Components({
-      resolvers: [
-        AntDesignVueResolver({
-          importStyle: false, // css in js
-        }),
-      ],
-    }),
-  ],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      vue(),
+      vueDevTools(),
+      vueSetupExtend(), // 修复插件调用方式
+      Components({
+        resolvers: [
+          AntDesignVueResolver({
+            importStyle: false, // css in js
+          }),
+        ],
+      }),
+    ],
+    resolve: {
+      alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url))
+      },
     },
-  },
   }
 })
-// vite.config.js

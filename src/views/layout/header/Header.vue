@@ -2,7 +2,6 @@
 import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
-  HomeOutlined,
   FullscreenOutlined,
   DownOutlined,
   SettingOutlined,
@@ -11,6 +10,7 @@ import {
 } from '@ant-design/icons-vue';
 import { storeToRefs } from 'pinia';
 import { useThemeStore } from '@/stores/theme';
+import Breadcrumb from './breadcrumb.vue';
 
 const collapsed = defineModel<boolean>('collapsed', { required: true });
 
@@ -44,12 +44,7 @@ defineExpose({
         />
         
         <!-- 面包屑导航 -->
-        <a-breadcrumb separator="/">
-          <a-breadcrumb-item>
-            <home-outlined />
-          </a-breadcrumb-item>
-          <a-breadcrumb-item>首页</a-breadcrumb-item>
-        </a-breadcrumb>
+        <Breadcrumb />
       </div>
 
       <!-- 右侧工具栏 -->
@@ -130,10 +125,6 @@ defineExpose({
         &:hover {
           color: var(--mxg-color-primary)
         }
-      }
-      
-      :deep(.ant-breadcrumb) {
-        margin-left: 16px;
       }
     }
     

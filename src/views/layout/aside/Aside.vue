@@ -1,13 +1,6 @@
 <script setup lang="ts">
-import {
-  UserOutlined,
-  HomeOutlined,
-  SettingOutlined,
-  ShoppingOutlined,
-  LinkOutlined,
-  ExclamationCircleOutlined,
-  AntDesignOutlined,
-} from '@ant-design/icons-vue';
+import * as Icons from '@ant-design/icons-vue';
+import type { Component } from 'vue';
 import { ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -35,6 +28,14 @@ const onOpenChange = (keys: string[]) => {
   openKeys.value = keys;
 };
 
+// 创建一个方法来获取图标组件
+const getIconComponent = (iconName: string): Component | null => {
+  if (iconName && iconName in Icons) {
+    return Icons[iconName as keyof typeof Icons] as Component;
+  }
+  return null;
+};
+
 const handleMenuItemClick = (item: any) => {
   // 如果有外链，则打开新窗口
   if (item.meta?.linkTo) {
@@ -60,8 +61,8 @@ const handleMenuItemClick = (item: any) => {
   >
     <div class="logo-container">
       <div class="logo" :class="{ collapsed: collapsed }">
-        <ant-design-outlined v-if="!collapsed" class="logo-icon" />
-        <ant-design-outlined v-else class="logo-icon-collapsed" />
+        <img v-if="!collapsed" src="@/assets/cdp.svg" class="logo-icon" />
+        <img v-else src="@/assets/cdp.svg" class="logo-icon-collapsed" />
         <span v-if="!collapsed" class="logo-text">成职院后台系统</span>
       </div>
     </div>
@@ -76,20 +77,20 @@ const handleMenuItemClick = (item: any) => {
         <!-- 有子菜单的情况 -->
         <a-sub-menu v-if="item.children && item.children.length > 0" :key="item.path">
           <template #title>
-            <component v-if="item.meta?.icon" :is="item.meta.icon" />
+            <component v-if="item.meta?.icon" :is="getIconComponent(item.meta.icon)" />
             <span>{{ item.meta?.title }}</span>
           </template>
           <!-- 递归渲染子菜单 -->
           <template v-for="child in item.children" :key="child.path">
             <a-menu-item v-if="!child.meta?.hidden" :key="child.path" @click="handleMenuItemClick(child)">
-              <component v-if="child.meta?.icon" :is="child.meta.icon" />
+              <component v-if="child.meta?.icon" :is="getIconComponent(child.meta.icon)" />
               <span>{{ child.meta?.title }}</span>
             </a-menu-item>
           </template>
         </a-sub-menu>
         <!-- 没有子菜单的情况 -->
         <a-menu-item v-else :key="'menu-item-' + item.path" @click="handleMenuItemClick(item)">
-          <component v-if="item.meta?.icon" :is="item.meta.icon" />
+          <component v-if="item.meta?.icon" :is="getIconComponent(item.meta.icon)" />
           <span>{{ item.meta?.title }}</span>
         </a-menu-item>
       </template>
@@ -119,12 +120,12 @@ const handleMenuItemClick = (item: any) => {
       
       .logo-icon {
         font-size: 24px;
-        color: #1890ff;
+        height: 32px;
       }
       
       .logo-icon-collapsed {
         font-size: 24px;
-        color: #1890ff;
+        height: 32px;
       }
       
       .logo-text {

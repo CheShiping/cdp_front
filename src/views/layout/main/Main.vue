@@ -3,9 +3,12 @@
     <div class="content-wrapper">
       <router-view v-slot="{Component, route}">
         <transition name="fade-transform" mode="out-in">
-          <keep-alive :include="cachedViews">
-            <component :is="Component" :key="route.fullPath" />
-          </keep-alive>
+          <div :key="route.fullPath">
+            <keep-alive :include="cachedViews">
+              <component :is="Component" v-if="route.meta.cache !== false" />
+            </keep-alive>
+            <component :is="Component" v-if="route.meta.cache === false" />
+          </div>
         </transition>
       </router-view>
     </div>
@@ -23,7 +26,6 @@ const cachedViews = ref<string[]>([])
 watch(
   route,
   (to) => {
-    // 如果需要缓存且尚未添加到缓存列表中，则添加
     if (to.meta?.cache && to.name && !cachedViews.value.includes(to.name as string)) {
       cachedViews.value.push(to.name as string)
     }
