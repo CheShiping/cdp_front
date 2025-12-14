@@ -132,7 +132,8 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         component: () => import('../views/error/401.vue'),
         meta: {
           title: '401页面',
-          hidden: true
+          icon: 'LockOutlined',
+          hidden: false
         }
       },
       {
