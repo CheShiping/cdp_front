@@ -8,10 +8,32 @@ import {
   ExclamationCircleOutlined,
   AntDesignOutlined,
 } from '@ant-design/icons-vue';
-import { ref } from 'vue';
+import { ref, computed, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
-const selectedKeys = ref<string[]>((['1'] as string[]));
+const route = useRoute();
+const router = useRouter();
+
+const selectedKeys = ref<string[]>([route.path]);
+
+// 监听路由变化，更新选中的菜单项
+watch(route, (newRoute) => {
+  selectedKeys.value = [newRoute.path];
+}, { immediate: true });
+const openKeys = ref<string[]>([]);
+
 const collapsed = defineModel<boolean>('collapsed', { required: true });
+
+// 获取所有需要显示的路由
+const showRouters = computed(() => {
+  const layoutRoute = router.options.routes.find(r => r.name === 'Layout');
+  return layoutRoute?.children?.filter(item => !item.meta?.hidden) || [];
+});
+
+// 展开菜单事件
+const onOpenChange = (keys: string[]) => {
+  openKeys.value = keys;
+};
 </script>
 
 <template>
@@ -31,36 +53,33 @@ const collapsed = defineModel<boolean>('collapsed', { required: true });
       </div>
     </div>
     
-    <a-menu v-model:selectedKeys="selectedKeys" mode="inline">
-      <a-menu-item key="1">
-        <user-outlined />
-        <span>首页</span>
-      </a-menu-item>
-      <a-sub-menu key="2">
-        <template #title>
-          <setting-outlined />
-          <span>系统管理</span>
-        </template>
-        <a-menu-item key="2-1">菜单管理</a-menu-item>
-        <a-menu-item key="2-2">角色管理</a-menu-item>
-        <a-menu-item key="2-3">用户管理</a-menu-item>
-      </a-sub-menu>
-      <a-sub-menu key="3">
-        <template #title>
-          <shopping-outlined />
-          <span>商品管理</span>
-        </template>
-        <a-menu-item key="3-1">商品列表</a-menu-item>
-        <a-menu-item key="3-2">商品分类</a-menu-item>
-      </a-sub-menu>
-      <a-menu-item key="4">
-        <link-outlined />
-        <span>成职院官网</span>
-      </a-menu-item>
-      <a-menu-item key="5">
-        <exclamation-circle-outlined />
-        <span>401页面</span>
-      </a-menu-item>
+    <a-menu 
+      v-model:selectedKeys="selectedKeys" 
+      v-model:openKeys="openKeys"
+      mode="inline"
+      @openChange="onOpenChange"
+    >
+      <template v-for="item in showRouters" :key="item.path">
+        <!-- 有子菜单的情况 -->
+        <a-sub-menu v-if="item.children && item.children.length > 0" :key="item.path">
+          <template #title>
+            <component v-if="item.meta?.icon" :is="item.meta.icon" />
+            <span>{{ item.meta?.title }}</span>
+          </template>
+          <!-- 递归渲染子菜单 -->
+          <template v-for="child in item.children" :key="child.path">
+            <a-menu-item v-if="!child.meta?.hidden" :key="child.path">
+              <component v-if="child.meta?.icon" :is="child.meta.icon" />
+              <span>{{ child.meta?.title }}</span>
+            </a-menu-item>
+          </template>
+        </a-sub-menu>
+        <!-- 没有子菜单的情况 -->
+        <a-menu-item v-else :key="'menu-item-' + item.path">
+          <component v-if="item.meta?.icon" :is="item.meta.icon" />
+          <span>{{ item.meta?.title }}</span>
+        </a-menu-item>
+      </template>
     </a-menu>
   </a-layout-sider>
 </template>

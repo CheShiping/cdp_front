@@ -1,7 +1,7 @@
 <template>
   <a-layout-content class="content">
     <div class="content-wrapper">
-      Content
+      <router-view></router-view>
     </div>
   </a-layout-content>
 </template>
