@@ -34,6 +34,19 @@ const showRouters = computed(() => {
 const onOpenChange = (keys: string[]) => {
   openKeys.value = keys;
 };
+
+const handleMenuItemClick = (item: any) => {
+  // 如果有外链，则打开新窗口
+  if (item.meta?.linkTo) {
+    window.open(item.meta.linkTo, '_blank');
+    return;
+  }
+  
+  // 否则进行路由跳转
+  if (item.path) {
+    router.push(item.path);
+  }
+};
 </script>
 
 <template>
@@ -49,7 +62,7 @@ const onOpenChange = (keys: string[]) => {
       <div class="logo" :class="{ collapsed: collapsed }">
         <ant-design-outlined v-if="!collapsed" class="logo-icon" />
         <ant-design-outlined v-else class="logo-icon-collapsed" />
-        <span v-if="!collapsed" class="logo-text">管理系统</span>
+        <span v-if="!collapsed" class="logo-text">成职院后台系统</span>
       </div>
     </div>
     
@@ -68,14 +81,14 @@ const onOpenChange = (keys: string[]) => {
           </template>
           <!-- 递归渲染子菜单 -->
           <template v-for="child in item.children" :key="child.path">
-            <a-menu-item v-if="!child.meta?.hidden" :key="child.path">
+            <a-menu-item v-if="!child.meta?.hidden" :key="child.path" @click="handleMenuItemClick(child)">
               <component v-if="child.meta?.icon" :is="child.meta.icon" />
               <span>{{ child.meta?.title }}</span>
             </a-menu-item>
           </template>
         </a-sub-menu>
         <!-- 没有子菜单的情况 -->
-        <a-menu-item v-else :key="'menu-item-' + item.path">
+        <a-menu-item v-else :key="'menu-item-' + item.path" @click="handleMenuItemClick(item)">
           <component v-if="item.meta?.icon" :is="item.meta.icon" />
           <span>{{ item.meta?.title }}</span>
         </a-menu-item>

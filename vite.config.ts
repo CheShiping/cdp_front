@@ -5,6 +5,7 @@ import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import Components from 'unplugin-vue-components/vite';
 import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers';
+import vueSetupExtend from 'vite-plugin-vue-setup-extend-plus'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -24,6 +25,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
     vue(),
     vueDevTools(),
+    vueSetupExtend(),
     Components({
       resolvers: [
         AntDesignVueResolver({
