@@ -18,21 +18,33 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   resp => {
+    // 根据实际的API响应结构调整处理逻辑
     const res = resp.data
+    // 如果有code字段并且为200，则认为请求成功
     if (res.code === 200) {
       return res
     }
-    message.error(res.message)
+    // 如果没有code字段，但有success字段为true，也认为请求成功
+    if (res.success === true) {
+      return {
+        code: 200,
+        data: res.data,
+        message: 'success'
+      }
+    }
+    // 其他情况视为请求失败
+    message.error(res.message || '请求失败')
     return Promise.reject(res)
   },
   err => {
-    const { message, response } = err
-    if(message.indexOf('timeout') != -1) {
+    // 解决变量名冲突问题
+    const { message: errMsg, response } = err
+    if(errMsg.indexOf('timeout') != -1) {
       message.error('网络超时！');
-    } else if(message == 'Network Error') {
+    } else if(errMsg == 'Network Error') {
       message.error('网络连接错误！');
     } else {
-      if(response.data) message.error(response.statusText)
+      if(response && response.data) message.error(response.statusText)
       else message.error('接口路径找不到');
     }
     // 处理401错误

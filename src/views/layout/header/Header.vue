@@ -60,10 +60,15 @@ defineExpose({
         <!-- Switch to toggle between light and dark themes -->
         <a-switch 
           :checked="isDarkTheme" 
-          checked-children="Dark" 
-          un-checked-children="Light" 
           @change="handleThemeChange"
-        />
+        >
+          <template #checkedChildren>
+            <span>🌙</span>
+          </template>
+          <template #unCheckedChildren>
+            <span>☀️</span>
+          </template>
+        </a-switch>
 
         <!-- 用户信息下拉 -->
         <a-dropdown>
@@ -143,6 +148,12 @@ defineExpose({
           font-weight: 500;
         }
       }
+    }
+    
+    .moon-icon {
+      width: 14px;
+      height: 14px;
+      vertical-align: middle;
     }
   }
 }
