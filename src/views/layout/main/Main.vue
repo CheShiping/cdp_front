@@ -5,9 +5,9 @@
         <transition name="fade-transform" mode="out-in">
           <div :key="route.fullPath">
             <keep-alive :include="cachedViews">
-              <component :is="Component" v-if="route.meta.cache !== false" />
+              <component :is="Component" v-if="route.meta.cache !== false" :key="route.fullPath" />
             </keep-alive>
-            <component :is="Component" v-if="route.meta.cache === false" />
+            <component :is="Component" v-if="route.meta.cache === false" :key="route.fullPath" />
           </div>
         </transition>
       </router-view>
@@ -47,9 +47,6 @@ watch(
     min-height: 100%;
     border-radius: 4px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     font-size: 24px;
     color: #999;
   }

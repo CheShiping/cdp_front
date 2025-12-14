@@ -28,14 +28,20 @@
   // 边框
   --mxg-border-color-light: #3a3f4b !important;
   
-  // 按钮颜色
-  --mxg-color-red: #F5222D;
-  --mxg-color-orange: #FA541C;
-  --mxg-color-yellow: #FAAD14;
-  --mxg-color-cyan: #13C2C2;
-  --mxg-color-green: #52C41A;
-  --mxg-color-blue: #2F54EB;
-  --mxg-color-purple: #722ED1;
+  // 按钮颜色（暗色主题适配）
+  --mxg-color-red: #cf1212;
+  --mxg-color-orange: #d94800;
+  --mxg-color-yellow: #d99400;
+  --mxg-color-cyan: #0f9a9a;
+  --mxg-color-green: #388e3c;
+  --mxg-color-blue: #1a3dc4;
+  --mxg-color-purple: #521f99;
+  
+  // 卡片渐变色的第二个颜色（暗色主题适配）
+  --mxg-color-green-light: #358a26;
+  --mxg-color-blue-light: #1a3dc4;
+  --mxg-color-red-light: #b31212;
+  --mxg-color-purple-light: #521f99;
 
   // 添加新的颜色变量
   --mxg-color-orange: #FCA21C;
