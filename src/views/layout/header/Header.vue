@@ -10,12 +10,18 @@ import {
 } from '@ant-design/icons-vue';
 import { storeToRefs } from 'pinia';
 import { useThemeStore } from '@/stores/theme';
+import { useFullscreenStore } from '@/stores/fullscreen';
 import Breadcrumb from './breadcrumb.vue';
 
 const collapsed = defineModel<boolean>('collapsed', { required: true });
 
 const themeStore = useThemeStore();
 const { isDarkTheme } = storeToRefs(themeStore);
+
+// 全屏 store
+const fullscreenStore = useFullscreenStore();
+const { isFullscreen } = storeToRefs(fullscreenStore);
+const { toggle: toggleFullscreenAction } = fullscreenStore;
 
 // 修复主题切换功能
 const handleThemeChange = (checked: boolean) => {
@@ -25,6 +31,10 @@ const handleThemeChange = (checked: boolean) => {
 defineExpose({
   handleThemeChange
 });
+
+const handleToggleFullscreen = async () => {
+  await toggleFullscreenAction()
+}
 </script>
 
 <template>
@@ -52,7 +62,7 @@ defineExpose({
 
         <!-- 全屏按钮 -->
         <a-tooltip title="全屏">
-          <a-button type="text" size="small">
+          <a-button type="text" size="small" @click="handleToggleFullscreen">
             <fullscreen-outlined />
           </a-button>
         </a-tooltip>

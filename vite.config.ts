@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       vue(),
       vueDevTools(),
-      vueSetupExtend(), // 修复插件调用方式
+      vueSetupExtend.default(),
       Components({
         resolvers: [
           AntDesignVueResolver({
