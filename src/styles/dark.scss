@@ -1,42 +1,63 @@
 /* 暗黑样式
 --------------------------- */
 html[class='dark'] {
-	--mxg-color-white: #fff;
+  --mxg-color-white: #ffffff;
   --mxg-color-black: #0f121d;
-  --mxg-color-primary: #1966ff;
-	--mxg-border-color: #333333;
+  --mxg-color-primary: #16C2A3; // 保持与亮色主题一致的主色
+  --mxg-border-color: #2a2a2a;
 
-	--mxg-color-hover: #3c3c3c;
-	--mxg-color-hover-rgba: rgba(0, 0, 0, .9);
-	
+  --mxg-color-hover: #3c3c3c;
+  --mxg-color-hover-rgba: rgba(255, 255, 255, .05);
+  
   // 左侧菜单
-  --mxg-bg-menuMainColor: var(--mxg-color-black) !important;
-  --mxg-bg-menuActiveColor: var(--mxg-color-primary) !important;
-  --mxg-bg-menuHoverColor: #2e436e !important;
+  --mxg-bg-menuMainColor: #1E1E1E !important; // 使用更柔和的深灰色作为背景
+  --mxg-bg-menuActiveColor: #16C2A3 !important; // 保持主色
+  --mxg-bg-menuHoverColor: #16C2A3 !important; // 主色悬停效果
+  --mxg-bg-menuHoverColor-rgba: rgba(22, 194, 163, 0.1) !important; // 半透明悬停效果
 
   --mxg-text-menuMainColor: var(--mxg-color-white) !important;
   --mxg-text-menuActiveColor: var(--mxg-color-white) !important;
   --mxg-text-menuHoverColor: var(--mxg-color-white) !important;
 
   // 头部导航
-  --mxg-bg-headerBarColor: var(--mxg-color-black) !important;
+  --mxg-bg-headerBarColor: #1E1E1E !important; // 使用更柔和的深灰色作为背景
 
-	// 头部右侧图标光标浮动
-	--mxg-color-user-hover: var(--mxg-color-hover-rgba) !important;
-	
+  // 头部右侧图标光标浮动
+  --mxg-color-user-hover: var(--mxg-color-hover-rgba) !important;
+  
   // 边框
   --mxg-border-color-light: var(--mxg-border-color) !important;
-
+  
+  // 按钮颜色 - 调整为适合暗色主题的亮度
+  --mxg-color-red: #ff6b6b;
+  --mxg-color-orange: #ffa500;
+  --mxg-color-yellow: #ffd43b;
+  --mxg-color-cyan: #22d3ee;
+  --mxg-color-green: #6cff72;
+  --mxg-color-blue: #618cff;
+  --mxg-color-purple: #b197fc;
+  
+  // 文字颜色 - 调整为适合暗色主题的亮度
+  --mxg-color-text1: rgba(255, 255, 255, 0.87); // 主要文字使用87%透明度的白色
+  --mxg-color-text2: rgba(255, 255, 255, 0.6); // 次要文字使用60%透明度的白色
+  --mxg-color-text3: rgba(255, 255, 255, 0.38); // 不重要文字使用38%透明度的白色
+  --mxg-color-tag: #909090; // 标签颜色
+  --mxg-color-dark: #707070; // 深灰色文字
+  --mxg-color-tip: #505050; // 提示颜色
+  --mxg-color-disable: #404040; // 禁用颜色
+  --mxg-color-line: #303030; // 线条颜色
+  --mxg-color-bg: #1E1E1E; // 使用更柔和的深灰色作为背景
+  --mxg-color-price: #ff7f7f; // 价格颜色
 
   /* wangeditor 富文本编辑器 - css vars
   --------------------------- */
-  --w-e-toolbar-bg-color: var(--el-bg-color) !important;
-	--w-e-toolbar-color: var(--el-text-color-primary) !important;
+  --w-e-toolbar-bg-color: var(--mxg-bg-headerBarColor) !important;
+  --w-e-toolbar-color: var(--mxg-color-text1) !important;
   // 工具栏浮动显示
-  --w-e-toolbar-active-color: var(--el-text-color-primary) !important;
-	--w-e-toolbar-active-bg-color: var(--el-color-primary-light-9) !important;
-  --w-e-toolbar-border-color: var( --mxg-border-color) !important;
+  --w-e-toolbar-active-color: var(--mxg-color-text1) !important;
+  --w-e-toolbar-active-bg-color: var(--mxg-bg-menuHoverColor) !important;
+  --w-e-toolbar-border-color: var(--mxg-border-color) !important;
   // 内容区域
-  --w-e-textarea-bg-color: var(--el-bg-color) !important;
-  --w-e-textarea-color: var(--el-text-color-primary) !important;
+  --w-e-textarea-bg-color: var(--mxg-bg-headerBarColor) !important;
+  --w-e-textarea-color: var(--mxg-color-text1) !important;
 }

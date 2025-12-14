@@ -35,10 +35,9 @@
   --mxg-color-green: #52C41A;
   --mxg-color-blue: #2F54EB;
   --mxg-color-purple: #722ED1;
-}
 
 // 添加新的颜色变量
-:root {
+
   --mxg-color-orange: #FCA21C; // 更新为新的橙色
   --mxg-color-gray: #EAF8F6; // 更新为新的浅灰色
   --mxg-color-text1: #121826; // 新的深色文字
@@ -79,7 +78,7 @@
   }
 }
 
-// 自定义按钮样式
+// 自定义按钮样式 - 适配 Ant Design Vue
 .custom-button {
   &.red {
     background-color: var(--mxg-color-red);
@@ -173,17 +172,19 @@
   }
 }
 
-// 更新其他组件样式
-.el-button--primary {
+// 更新 Ant Design Vue 按钮样式
+.ant-btn-primary {
   background-color: var(--mxg-color-orange) !important;
   border-color: var(--mxg-color-orange) !important;
   color: var(--mxg-color-white) !important;
 }
 
-.el-button--primary:hover {
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
   background-color: var(--mxg-color-orange) !important;
   border-color: var(--mxg-color-orange) !important;
   color: var(--mxg-color-white) !important;
+  opacity: 0.9;
 }
 
 // 更新文本颜色
@@ -352,164 +353,3 @@ body,
 	}
 }
 
-
-/* 主布局样式
-------------------------------- */
-.layout-padding {
-  border: 1px solid var(--mxg-border-color-light);
-  border-radius: 10px;
-  overflow: hidden;
-  padding: 20px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.layout-container {
-  width: 100%;
-  height: 100%;
-  // 菜单展开时
-  .layout-aside-menu-200 {
-    width: 200px !important;
-    transition: width .3s ease;
-  }
-  // 菜单收起时
-  .layout-aside-menu-60 {
-    width: 60px !important;
-    transition: width .3s ease;
-  }
-  // 左侧菜单
-  .layout-aside {
-    background: var(--mxg-bg-menuMainColor);
-    height: inherit;
-    z-index: 1;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    overflow-x: hidden !important;
-    border-right: 1px solid var(--mxg-border-color-light);
-    .layout-logo {
-      height: 52px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--el-color-primary);
-      font-size: 16px;
-      cursor: pointer;
-      .layout-logo-img {
-        width: 26px;
-      }
-      span {
-        display: inline-block;
-        white-space: nowrap;
-        margin-left: 5px;
-				font-size: 14px;
-      }
-    }
-  }
-
-  // 右侧头部
-  .layout-header {
-    padding: 0 !important;
-    height: auto !important;
-    .layout-header-index {
-      height: 50px;
-      display: flex;
-      align-items: center;
-      color: var(--el-text-color-regular) !important;
-      background: var(--mxg-bg-headerBarColor);
-      border-bottom: 1px solid var(--mxg-border-color-light) !important;
-      .layout-header-breadcrumb {
-        display: flex;
-        align-items: center;
-        flex: 1;
-        height: inherit;
-        .el-breadcrumb__inner a {
-          // 面包屑标题不加粗
-          font-weight: normal;
-        }
-        .layout-header-expand-icon {
-          font-size: 19px;
-          margin: 0 10px;
-          cursor: pointer;
-        }
-      }
-      .layout-header-user {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        margin-right: 15px;
-        .user-dropdown-link {
-          height: inherit;
-          display: flex;
-          align-items: center;
-          white-space: nowrap;
-        }
-        .layout-header-user-icon {
-          cursor: pointer;
-          padding: 0 10px;
-          height: 50px;
-          line-height: 50px;
-          display: flex;
-          align-items: center;
-          &:hover {
-            background: var(--mxg-color-user-hover);
-          }
-        }
-      }
-    }
-  }
-
-  // 右侧主区域
-  .layout-main {
-    padding: 0!important;
-    overflow: hidden;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    .layout-main-warp {
-      padding: 20px !important;;
-      width: 100%;
-      height: 100%;
-    }
-  }
-}
-
-/* NavMenu 导航菜单
-------------------------------- */
-.el-menu {
-  border-right: none !important;
-  &.el-menu--collapse {
-    // 展开菜单时平滑
-    transition: width 0.3ms ease;
-  }
-}
-.el-menu-item, .el-sub-menu__title {
-	color: var(--mxg-text-menuMainColor);
-}
-.el-menu-item.is-active {
-  color: var(--mxg-text-menuActiveColor);
-  background-color: var(--mxg-bg-menuActiveColor);
-}
-.el-menu-item:hover {
-  color: var(--mxg-text-menuHoverColor);
-  background-color: var(--mxg-bg-menuHoverColor);
-}
-
-// 收缩后，鼠标放在多级菜单浮出窗口
-.el-menu--vertical {
-  background: var(--mxg-bg-menuMainColor);
-}
-
-// 收缩后，一级菜单浮出窗口 el-popper
-.el-popper.is-dark {
-  color: var(--el-text-color-primary);
-  background: var(--mxg-bg-menuMainColor);
-  border: 1px solid var(--mxg-border-color);
-  .el-popper__arrow:before { 
-    // 箭头
-    background: var(--mxg-bg-menuMainColor) !important;
-    border: 1px solid var(--mxg-border-color);//var(--next-border-color);
-  }
-}
