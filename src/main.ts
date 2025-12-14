@@ -1,6 +1,5 @@
 import '@/styles/app.scss'
 import '@/styles/dark.scss'
-
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 

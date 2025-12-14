@@ -27,6 +27,7 @@
     "@types/node": "^24.10.1",
     "@vitejs/plugin-vue": "^6.0.2",
     "@vue/tsconfig": "^0.8.1",
+    "@zougt/vite-plugin-theme-preprocessor": "^1.4.8",
     "npm-run-all2": "^8.0.4",
     "sass": "^1.95.0",
     "sass-loader": "^16.0.6",
