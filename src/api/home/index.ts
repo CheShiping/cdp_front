@@ -1,9 +1,7 @@
 import { request } from "@/utils/request"
 import type { Last30DaysSaleData } from "@/views/home/echarts/thirtDaysSaleData.vue"
 import type { CategoryData } from "@/views/home/echarts/category.vue"
-
-// 定义30天销售数据的类型
-
+import type { MemberConsumeData } from "@/views/home/echarts/memberTopTen.vue"
 
 const getstatisticsData = async () => {
   return await request('/home/statistics')
@@ -18,4 +16,8 @@ const getLast30DaysSaleData = async () => {
     return await request<Last30DaysSaleData>('/home/30days/saleData')
 }
 
-export {getstatisticsData, getcategoryData, getLast30DaysSaleData}
+const getMemberTopTenData = async () => {
+  return await request<MemberConsumeData[]>('/home/member/top10')
+}
+
+export { getstatisticsData, getcategoryData, getLast30DaysSaleData, getMemberTopTenData }
