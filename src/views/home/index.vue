@@ -11,9 +11,7 @@
           <Category />
         </a-col>
         <a-col :span="15">
-          <a-card title="图表2" :bordered="false" style="height: 500px;">
-            <div class="chart-placeholder">图表2占位符</div>
-          </a-card>
+          <ThirtDaysSaleData />
         </a-col>
         <a-col :span="15">
           <a-card title="图表3" :bordered="false" style="height: 500px;">
@@ -33,6 +31,7 @@
 <script setup lang="ts">
 import StatisticBlock from './components/statisticBlock.vue';
 import Category from './echarts/category.vue';
+import ThirtDaysSaleData from './echarts/thirtDaysSaleData.vue';
 
 </script>
 

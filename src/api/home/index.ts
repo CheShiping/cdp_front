@@ -1,14 +1,21 @@
 import { request } from "@/utils/request"
+import type { Last30DaysSaleData } from "@/views/home/echarts/thirtDaysSaleData.vue"
 import type { CategoryData } from "@/views/home/echarts/category.vue"
 
+// 定义30天销售数据的类型
+
+
 const getstatisticsData = async () => {
-  const res = await request('/home/statistics')
-  return res
+  return await request('/home/statistics')
 }
 
 const getcategoryData = async () => {
-  const res = await request<CategoryData[]>('/home/categoryData')
-  return res
+  return await request<CategoryData[]>('/home/categoryData')
 }
 
-export {getstatisticsData, getcategoryData}
+// 根据实际返回的数据结构，这里应该是Last30DaysSaleData而不是Last30DaysSaleData[]
+const getLast30DaysSaleData = async () => {
+    return await request<Last30DaysSaleData>('/home/30days/saleData')
+}
+
+export {getstatisticsData, getcategoryData, getLast30DaysSaleData}
