@@ -6,6 +6,7 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 import Components from 'unplugin-vue-components/vite';
 import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers';
 import vueSetupExtend from 'vite-plugin-vue-setup-extend-plus'
+import { AntDesignXVueResolver } from 'ant-design-x-vue/resolver';
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -20,7 +21,7 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           rewrite: path => path.replace(new RegExp(`^${env.VITE_APP_BASE_API}/`), '')
         },
-      }
+      },
     },
     plugins: [
       vue(),
@@ -31,6 +32,7 @@ export default defineConfig(({ mode }) => {
           AntDesignVueResolver({
             importStyle: false, // css in js
           }),
+          AntDesignXVueResolver(),
         ],
       }),
     ],
@@ -40,4 +42,4 @@ export default defineConfig(({ mode }) => {
       },
     },
   }
-})
+});

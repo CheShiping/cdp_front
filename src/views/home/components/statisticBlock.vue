@@ -43,6 +43,9 @@ onMounted(() => loadStatisticsData())
               <template #prefix>
                 <span class="statistic-icon">📦</span>
               </template>
+              <template #suffix>
+                <span class="statistic-suffix">笔</span>
+              </template>
             </a-statistic>
           </div>
         </a-card>
@@ -60,6 +63,9 @@ onMounted(() => loadStatisticsData())
               <template #prefix>
                 <span class="statistic-icon">💰</span>
               </template>
+              <template #suffix>
+                <span class="statistic-suffix">元</span>
+              </template>
             </a-statistic>
           </div>
         </a-card>
@@ -72,10 +78,13 @@ onMounted(() => loadStatisticsData())
             <a-statistic
               title="总退款额"
               :value="state.statisticData.totalReturnedMoney"
-              :precision="2"
+              :precision="1"
             >
               <template #prefix>
                 <span class="statistic-icon">💸</span>
+              </template>
+              <template #suffix>
+                <span class="statistic-suffix">元</span>
               </template>
             </a-statistic>
           </div>
@@ -89,10 +98,13 @@ onMounted(() => loadStatisticsData())
             <a-statistic
               title="总收入"
               :value="state.statisticData.totalIncomeMoney"
-              :precision="2"
+              :precision="1"
             >
               <template #prefix>
                 <span class="statistic-icon">📈</span>
+              </template>
+              <template #suffix>
+                <span class="statistic-suffix">元</span>
               </template>
             </a-statistic>
           </div>
@@ -172,5 +184,10 @@ onMounted(() => loadStatisticsData())
   background: linear-gradient(135deg, var(--mxg-color-purple) 0%, var(--mxg-color-purple-light) 100%);
 }
 
-
+.statistic-suffix {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-left: 4px;
+  font-weight: 500;
+}
 </style>

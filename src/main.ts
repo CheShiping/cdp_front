@@ -1,6 +1,8 @@
 import '@/styles/app.scss'
 import '@/styles/dark.scss'
 import '@/styles/transation.scss'
+// markstream vue KaTeX 数学公式渲染
+import 'katex/dist/katex.min.css'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 

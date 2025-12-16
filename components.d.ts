@@ -47,6 +47,7 @@ declare module 'vue' {
     ATable: typeof import('ant-design-vue/es')['Table']
     ATextarea: typeof import('ant-design-vue/es')['Textarea']
     ATooltip: typeof import('ant-design-vue/es')['Tooltip']
+    AXBubble: typeof import('ant-design-x-vue')['Bubble']
     Echarts: typeof import('./src/components/Echarts.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

@@ -7,20 +7,20 @@
     <div class="echarts-container">
       <!-- ECharts图表将放在这里 -->
       <a-row :gutter="[16, 16]">
-        <a-col :span="12">
+        <a-col :span="9">
           <Category />
         </a-col>
-        <a-col :span="12">
+        <a-col :span="15">
           <a-card title="图表2" :bordered="false" style="height: 500px;">
             <div class="chart-placeholder">图表2占位符</div>
           </a-card>
         </a-col>
-        <a-col :span="12">
+        <a-col :span="15">
           <a-card title="图表3" :bordered="false" style="height: 500px;">
             <div class="chart-placeholder">图表3占位符</div>
           </a-card>
         </a-col>
-        <a-col :span="12">
+        <a-col :span="9">
           <a-card title="图表4" :bordered="false" style="height: 500px;">
             <div class="chart-placeholder">图表4占位符</div>
           </a-card>

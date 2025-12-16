@@ -137,6 +137,16 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         }
       },
       {
+        path: '/chat/ai',
+        name: 'ChatAI',
+        component: () => import('../views/chat/index.vue'),
+        meta: {
+          title: 'AI对话页面',
+          icon: '',
+          hidden: false
+        }
+      },
+      {
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
         component: () => import('../views/error/404.vue'),
