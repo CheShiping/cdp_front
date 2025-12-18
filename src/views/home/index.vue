@@ -17,9 +17,7 @@
           <MemberTopTen />
         </a-col>
         <a-col :span="9">
-          <a-card title="图表4" :bordered="false" style="height: 500px;">
-            <div class="chart-placeholder">图表4占位符</div>
-          </a-card>
+          <GaugeChart />
         </a-col>
       </a-row>
     </div>
@@ -29,6 +27,7 @@
 <script setup lang="ts">
 import StatisticBlock from './components/statisticBlock.vue';
 import Category from './echarts/category.vue';
+import GaugeChart from './echarts/gaugeChart.vue';
 import MemberTopTen from './echarts/memberTopTen.vue';
 import ThirtDaysSaleData from './echarts/thirtDaysSaleData.vue';
 
