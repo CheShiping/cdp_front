@@ -1,8 +1,5 @@
 <template>
   <div>
-    <!-- 打开按钮 -->
-    <a-button type="primary" @click="showModal">打开 AI 助理</a-button>
-
     <!-- 自定义模态框（无遮罩，可拖动） -->
     <a-modal
       ref="modalRef"
@@ -88,16 +85,11 @@
 import { ref, computed, watch, watchEffect } from 'vue';
 import { useDraggable } from '@vueuse/core';
 
-// 控制弹窗是否打开
-const open = ref(false);
+// 通过 v-model:open 控制弹窗是否打开
+const open = defineModel<boolean>('open', { required: false, default: false });
 
 // 弹窗标题元素引用
 const modalTitleRef = ref<HTMLElement | null>(null);
-
-// 打开弹窗
-const showModal = () => {
-  open.value = true;
-};
 
 // 关闭弹窗
 const handleOk = () => {
