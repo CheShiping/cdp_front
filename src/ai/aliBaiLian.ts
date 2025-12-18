@@ -39,7 +39,8 @@ export async function* streamChat(
   for await (const chunk of stream) {
     // 检查是否已中断
     if (options?.signal?.aborted) {
-      throw new Error('Request aborted');
+      // 立即中断并返回
+      return;
     }
     yield chunk;
   }
