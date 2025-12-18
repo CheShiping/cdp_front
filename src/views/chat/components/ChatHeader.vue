@@ -2,7 +2,6 @@
 import { ref, h } from 'vue';
 import { Button, Space } from 'ant-design-vue';
 import { PlusOutlined, CloseOutlined } from '@ant-design/icons-vue';
-import { useDialogDrag } from '@/utils/dialogDrag';
 
 const props = defineProps<{
   messages: {
@@ -20,7 +19,6 @@ const emit = defineEmits<{
 }>();
 
 const modalTitleRef = ref<HTMLDivElement | null>(null);
-const { transformStyle } = useDialogDrag(modalTitleRef);
 
 defineExpose({
   modalTitleRef
@@ -31,7 +29,6 @@ defineExpose({
   <div 
     ref="modalTitleRef"
     class="chat-header"
-    :style="transformStyle"
   >
     <div class="header-title">
       ✨ 天机AI助理

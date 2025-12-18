@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { ref, nextTick, h } from 'vue';
+import { ref, nextTick, h, computed } from 'vue';
 import { streamChat } from '@/ai/aliBaiLian'; // 导入流式聊天函数
 import ChatHeader from './components/ChatHeader.vue';
 import ChatMessages from './components/ChatMessages.vue';
 import ChatInput from './components/ChatInput.vue';
+import { useDialogDrag } from '@/utils/dialogDrag'; // 导入拖拽功能
 
 // 使用 props 和 emit 控制显隐
 const props = defineProps<{
@@ -38,6 +39,10 @@ const messages = ref<ChatMessage[]>([
 ]);
 const isLoading = ref(false);
 const abortController = ref<AbortController | null>(null);
+
+// 使用拖拽功能
+const modalTitleRef = computed(() => chatHeaderRef.value?.modalTitleRef || null);
+const { transformStyle } = useDialogDrag(modalTitleRef);
 
 // ==================== Event ====================
 const handleUserSubmit = async (value: string) => {
@@ -198,6 +203,7 @@ const handleQuickQuestion = (question: string) => {
     :footer="null"
     width="520px"
     class="ai-assistant-modal"
+    :style="transformStyle"
   >
     <div class="chat-wrapper">
       <!-- 对话区 - header -->
@@ -206,7 +212,7 @@ const handleQuickQuestion = (question: string) => {
         :messages="messages"
         @close="handleClose"
         @clear-messages="handleClearMessages"
-      />
+      /> 
       
       <!-- 对话区 - 消息列表 -->
       <ChatMessages
@@ -217,7 +223,7 @@ const handleQuickQuestion = (question: string) => {
         @like="handleLike"
         @dislike="handleDislike"
         @question-click="handleQuestionClick"
-      />
+      /> 
 
       <!-- 对话区 - 输入框 -->
       <ChatInput
@@ -230,7 +236,7 @@ const handleQuickQuestion = (question: string) => {
         }"
         @stop-generate="handleStopGenerate"
         @quick-question="handleQuickQuestion"
-      />
+      /> 
     </div>
   </a-modal>
 </template>
