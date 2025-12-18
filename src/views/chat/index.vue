@@ -8,6 +8,7 @@
       :mask="false"
       :closable="false"
       :keyboard="false"
+      :maskClosable="false"
       @ok="handleOk"
       @cancel="handleOk"
       class="ai-assistant-modal"
@@ -41,16 +42,21 @@
           </p>
         </div>
 
-        <div class="suggestions">
-          <div class="suggestion-item">
+        <!-- 显示AI回复的区域 -->
+        <div class="response-area" v-if="aiResponse">
+          <div class="ai-message">{{ aiResponse }}</div>
+        </div>
+
+        <div class="suggestions" v-else>
+          <div class="suggestion-item" @click="askQuestion('课程推荐 能帮我推荐一个合适的课吗？')">
             <span class="icon">👍</span>
             <span>课程推荐 能帮我推荐一个合适的课吗？</span>
           </div>
-          <div class="suggestion-item">
+          <div class="suggestion-item" @click="askQuestion('课程推荐 最近有什么新课吗？')">
             <span class="icon">🔥</span>
             <span>课程推荐 最近有什么新课吗？</span>
           </div>
-          <div class="suggestion-item">
+          <div class="suggestion-item" @click="askQuestion('学习安排 根据我的学习时长、习惯、课程，帮我制定下一个阶段的学习计划。')">
             <span class="icon">📅</span>
             <span>学习安排 根据我的学习时长、习惯、课程，帮我制定下一个阶段的学习计划。</span>
           </div>
@@ -58,15 +64,17 @@
 
         <div class="input-area">
           <textarea
+            v-model="userInput"
             placeholder="请将您的问题告诉我，Shift+Enter换行"
             class="input-box"
             rows="1"
+            @keydown.enter="handleKeyDown"
           ></textarea>
           <div class="input-actions">
             <a-button type="link" size="small" icon="camera">📷</a-button>
             <a-button type="link" size="small" icon="copy">📋</a-button>
             <a-button type="link" size="small" icon="microphone">🎙️</a-button>
-            <a-button type="primary" size="small" icon="send">📤</a-button>
+            <a-button type="primary" size="small" icon="send" @click="sendQuestion">📤</a-button>
           </div>
         </div>
       </div>
@@ -84,6 +92,7 @@
 <script lang="ts" setup>
 import { ref, computed, watch, watchEffect } from 'vue';
 import { useDraggable } from '@vueuse/core';
+import { streamChat } from '../../ai/aliBaiLian';
 
 // 通过 v-model:open 控制弹窗是否打开
 const open = defineModel<boolean>('open', { required: false, default: false });
@@ -91,9 +100,68 @@ const open = defineModel<boolean>('open', { required: false, default: false });
 // 弹窗标题元素引用
 const modalTitleRef = ref<HTMLElement | null>(null);
 
+// 用户输入
+const userInput = ref('');
+
+// AI回复内容
+const aiResponse = ref('');
+
+// 控制默认提示显示
+const showDefaultSuggestions = ref(true);
+
+// 监听AI回复变化，控制建议显示
+watch(aiResponse, (value) => {
+  showDefaultSuggestions.value = !value;
+});
+
+// 监听AI回复变化，控制建议显示
+watch(aiResponse, (value) => {
+  showDefaultSuggestions.value = !value;
+});
+
 // 关闭弹窗
 const handleOk = () => {
   open.value = false;
+};
+
+// 发送问题
+const sendQuestion = async () => {
+  if (!userInput.value.trim()) return;
+  
+  const question = userInput.value;
+  userInput.value = '';
+  aiResponse.value = '';
+  
+  // 构造消息历史
+  const messages = [
+    { role: "system", content: "You are a helpful assistant." },
+    { role: "user", content: question }
+  ];
+  
+  // 调用流式接口
+  try {
+    for await (const chunk of streamChat(messages)) {
+      // 累加AI回复内容
+      aiResponse.value += chunk.content;
+    }
+  } catch (error) {
+    console.error("Error streaming response:", error);
+    aiResponse.value = "抱歉，我在回复时遇到了问题，请稍后再试。";
+  }
+};
+
+// 快捷提问
+const askQuestion = (question: string) => {
+  userInput.value = question;
+  sendQuestion();
+};
+
+// 处理键盘事件
+const handleKeyDown = (event: KeyboardEvent) => {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    sendQuestion();
+  }
 };
 
 // 使用 useDraggable 实现拖动
@@ -242,6 +310,25 @@ const transformStyle = computed(() => ({
   color: #555;
   font-size: 14px;
   margin: 8px 0 0;
+}
+
+.response-area {
+  background-color: #f0f8ff;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  min-height: 50px;
+  max-height: 200px;
+  overflow-y: auto;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.ai-message {
+  color: #333;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
 }
 
 .suggestions {
