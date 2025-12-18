@@ -14,9 +14,13 @@ const chatModel = new ChatOpenAI({
 /**
  * 封装流式调用方法
  * @param messages 对话消息数组
+ * @param options 配置选项，支持 signal 用于中断请求
  * @returns 流式响应
  */
-export async function* streamChat(messages: { role: string; content: string }[]) {
+export async function* streamChat(
+  messages: { role: string; content: string }[],
+  options?: { signal?: AbortSignal }
+) {
   // 转换消息格式
   const formattedMessages = messages.map(msg => {
     if (msg.role === "system") {
@@ -26,11 +30,17 @@ export async function* streamChat(messages: { role: string; content: string }[])
     }
   });
 
-  // 调用模型并获取流式响应
-  const stream = await chatModel.stream(formattedMessages);
+  // 调用模型并获取流式响应，传递 signal 用于中断请求
+  const stream = await chatModel.stream(formattedMessages, {
+    signal: options?.signal
+  });
 
   // 逐个返回流式数据块
   for await (const chunk of stream) {
+    // 检查是否已中断
+    if (options?.signal?.aborted) {
+      throw new Error('Request aborted');
+    }
     yield chunk;
   }
 }

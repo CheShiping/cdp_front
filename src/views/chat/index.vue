@@ -2,15 +2,13 @@
   <div>
     <!-- 自定义模态框（无遮罩，可拖动） -->
     <a-modal
-      ref="modalRef"
       v-model:open="open"
       :wrap-style="{ overflow: 'hidden' }"
       :mask="false"
-      :closable="false"
+      :closable="true"
       :keyboard="false"
       :maskClosable="false"
-      @ok="handleOk"
-      @cancel="handleOk"
+      :footer="null"
       class="ai-assistant-modal"
     >
       <!-- 拖动标题栏 -->
@@ -27,41 +25,57 @@
         </div>
       </template>
 
-      <!-- 模态框内容 -->
-      <div class="assistant-content">
-        <div class="avatar-container">
-          <img src="https://via.placeholder.com/120/FFD700/000000?text=AI" alt="AI Assistant" />
-          <div class="speech-bubble">Hi</div>
-        </div>
-
-        <div class="greeting">
-          <p class="hello">👋 Hello，我是天机AI助理</p>
-          <p class="description">
-            我是由天机学堂倾力打造的智能助理，我不仅能推荐课程、答疑解惑，
-            还能为您激发创意、畅聊心事。
-          </p>
-        </div>
-
-        <!-- 显示AI回复的区域 -->
-        <div class="response-area" v-if="aiResponse">
-          <div class="ai-message">{{ aiResponse }}</div>
-        </div>
-
-        <div class="suggestions" v-else>
-          <div class="suggestion-item" @click="askQuestion('课程推荐 能帮我推荐一个合适的课吗？')">
-            <span class="icon">👍</span>
-            <span>课程推荐 能帮我推荐一个合适的课吗？</span>
+      <!-- 聊天容器：固定高度 -->
+      <div class="chat-container">
+        <!-- 可滚动区域 -->
+        <div class="scrollable-area" ref="scrollableAreaRef">
+          <!-- 初始欢迎语（仅当未开始对话时） -->
+          <div v-if="shouldShowSuggestions" class="greeting">
+            <p class="hello">👋 Hello，我是天机AI助理</p>
+            <p class="description">
+              我是由天机学堂倾力打造的智能助理，我不仅能推荐课程、答疑解惑，
+              还能为您激发创意、畅聊心事。
+            </p>
           </div>
-          <div class="suggestion-item" @click="askQuestion('课程推荐 最近有什么新课吗？')">
-            <span class="icon">🔥</span>
-            <span>课程推荐 最近有什么新课吗？</span>
+
+          <!-- 聊天历史（过滤掉初始欢迎语后的消息） -->
+          <div class="chat-history">
+            <div
+              v-for="(message, index) in displayMessages"
+              :key="index"
+              :class="['message', { 'user-message': message.role === 'user', 'ai-message': message.role === 'ai' }]"
+            >
+              <div class="message-content">{{ message.content }}</div>
+            </div>
           </div>
-          <div class="suggestion-item" @click="askQuestion('学习安排 根据我的学习时长、习惯、课程，帮我制定下一个阶段的学习计划。')">
-            <span class="icon">📅</span>
-            <span>学习安排 根据我的学习时长、习惯、课程，帮我制定下一个阶段的学习计划。</span>
+
+          <!-- 推荐问题（仅初始状态） -->
+          <div v-if="shouldShowSuggestions" class="suggestions">
+            <div
+              class="suggestion-item"
+              @click="askQuestion('课程推荐 能帮我推荐一个合适的课吗？')"
+            >
+              <span class="icon">👍</span>
+              <span>课程推荐 能帮我推荐一个合适的课吗？</span>
+            </div>
+            <div
+              class="suggestion-item"
+              @click="askQuestion('课程推荐 最近有什么新课吗？')"
+            >
+              <span class="icon">🔥</span>
+              <span>课程推荐 最近有什么新课吗？</span>
+            </div>
+            <div
+              class="suggestion-item"
+              @click="askQuestion('学习安排 根据我的学习时长、习惯、课程，帮我制定下一个阶段的学习计划。')"
+            >
+              <span class="icon">📅</span>
+              <span>学习安排 根据我的学习时长、习惯、课程，帮我制定下一个阶段的学习计划。</span>
+            </div>
           </div>
         </div>
 
+        <!-- 输入区域（固定在底部） -->
         <div class="input-area">
           <textarea
             v-model="userInput"
@@ -71,10 +85,10 @@
             @keydown.enter="handleKeyDown"
           ></textarea>
           <div class="input-actions">
-            <a-button type="link" size="small" icon="camera">📷</a-button>
-            <a-button type="link" size="small" icon="copy">📋</a-button>
-            <a-button type="link" size="small" icon="microphone">🎙️</a-button>
-            <a-button type="primary" size="small" icon="send" @click="sendQuestion">📤</a-button>
+            <a-button type="link" size="small">📷</a-button>
+            <a-button type="link" size="small">📋</a-button>
+            <a-button type="link" size="small">🎙️</a-button>
+            <a-button type="primary" size="small" @click="sendQuestion">📤</a-button>
           </div>
         </div>
       </div>
@@ -90,64 +104,102 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch, watchEffect } from 'vue';
+import { ref, computed, watch, watchEffect, nextTick } from 'vue';
 import { useDraggable } from '@vueuse/core';
+// 假设你有这个接口，若没有可注释掉并 mock
 import { streamChat } from '../../ai/aliBaiLian';
 
-// 通过 v-model:open 控制弹窗是否打开
-const open = defineModel<boolean>('open', { required: false, default: false });
+// 使用 v-model:open 控制显隐
+const open = defineModel<boolean>('open', { default: false });
 
-// 弹窗标题元素引用
+// refs
 const modalTitleRef = ref<HTMLElement | null>(null);
+const scrollableAreaRef = ref<HTMLElement | null>(null);
 
 // 用户输入
 const userInput = ref('');
 
-// AI回复内容
-const aiResponse = ref('');
+// 聊天历史（初始为 AI 欢迎语）
+const chatHistory = ref<Array<{ role: 'user' | 'ai'; content: string }>>([
+  { role: 'ai', content: 'Hello，我是天机AI助理' }
+]);
 
-// 控制默认提示显示
-const showDefaultSuggestions = ref(true);
+// 控制流式请求的 AbortController
+const abortController = ref<AbortController | null>(null);
 
-// 监听AI回复变化，控制建议显示
-watch(aiResponse, (value) => {
-  showDefaultSuggestions.value = !value;
+// 是否显示推荐问题：仅当只有初始欢迎消息时
+const shouldShowSuggestions = computed(() => {
+  return chatHistory.value.length === 1;
 });
 
-// 监听AI回复变化，控制建议显示
-watch(aiResponse, (value) => {
-  showDefaultSuggestions.value = !value;
+// 显示的消息（始终排除初始欢迎语，避免重复）
+const displayMessages = computed(() => {
+  // 如果处于初始状态，不显示任何历史（由 greeting 单独展示）
+  if (shouldShowSuggestions.value) {
+    return [];
+  }
+  // 否则显示全部（包括欢迎语之后的所有对话）
+  return chatHistory.value;
 });
-
-// 关闭弹窗
-const handleOk = () => {
-  open.value = false;
-};
 
 // 发送问题
 const sendQuestion = async () => {
-  if (!userInput.value.trim()) return;
-  
-  const question = userInput.value;
+  const question = userInput.value.trim();
+  if (!question) return;
+
+  // 清空输入
   userInput.value = '';
-  aiResponse.value = '';
+
+  // 添加用户消息
+  chatHistory.value.push({ role: 'user', content: question });
+
+  // 添加加载占位符
+  chatHistory.value.push({ role: 'ai', content: '...' });
+
+  // 滚动到底部
+  scrollToBottom();
+
+  // 创建新的 AbortController 用于控制此请求
+  abortController.value = new AbortController();
   
-  // 构造消息历史
-  const messages = [
-    { role: "system", content: "You are a helpful assistant." },
-    { role: "user", content: question }
-  ];
-  
-  // 调用流式接口
+  // 调用真实的 AI 流式回复
   try {
-    for await (const chunk of streamChat(messages)) {
-      // 累加AI回复内容
-      aiResponse.value += chunk.content;
+    // 获取除了最后一条 "..." 之外的所有消息历史
+    const historyMessages = chatHistory.value.slice(0, -1);
+    
+    // 调用阿里百炼流式接口，传递 signal 用于中断请求
+    const stream = streamChat(historyMessages, { signal: abortController.value.signal });
+    
+    let accumulatedResponse = '';
+    
+    // 逐块接收流式响应
+    for await (const chunk of stream) {
+      accumulatedResponse += chunk.content.toString();
+      
+      // 更新最后一条 AI 消息
+      const lastIndex = chatHistory.value.length - 1;
+      if (chatHistory.value[lastIndex]) {
+        chatHistory.value[lastIndex].content = accumulatedResponse;
+        scrollToBottom();
+      }
     }
-  } catch (error) {
-    console.error("Error streaming response:", error);
-    aiResponse.value = "抱歉，我在回复时遇到了问题，请稍后再试。";
+  } catch (error: unknown) {
+    // 检查是否是由于主动中断导致的错误
+    if ((error instanceof Error && error.name === 'AbortError') || (typeof error === 'object' && error !== null && 'message' in error && error.message === 'Request aborted')) {
+      console.log('请求已被用户中断');
+      return;
+    }
+    
+    console.error('AI 回复出错:', error);
+    const lastIndex = chatHistory.value.length - 1;
+    if (chatHistory.value[lastIndex]) {
+      chatHistory.value[lastIndex].content =
+        '抱歉，我在回复时遇到了问题，请稍后再试。';
+    }
   }
+
+  // 最终滚动
+  scrollToBottom();
 };
 
 // 快捷提问
@@ -156,57 +208,78 @@ const askQuestion = (question: string) => {
   sendQuestion();
 };
 
-// 处理键盘事件
-const handleKeyDown = (event: KeyboardEvent) => {
-  if (event.key === 'Enter' && !event.shiftKey) {
-    event.preventDefault();
+// 键盘事件：Enter 发送，Shift+Enter 换行
+const handleKeyDown = (e: KeyboardEvent) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
     sendQuestion();
   }
 };
 
-// 使用 useDraggable 实现拖动
+// 滚动到底部
+const scrollToBottom = async () => {
+  await nextTick();
+  if (scrollableAreaRef.value) {
+    scrollableAreaRef.value.scrollTop = scrollableAreaRef.value.scrollHeight;
+  }
+};
+
+// 监听聊天记录变化，自动滚动
+watch(chatHistory, scrollToBottom);
+
+// 监听模态框打开状态的变化
+watch(open, (newVal) => {
+  if (!newVal) {
+    // 当模态框关闭时，中断正在进行的请求
+    if (abortController.value) {
+      abortController.value.abort();
+      abortController.value = null;
+    }
+    
+    // 重置聊天历史到初始状态
+    chatHistory.value = [{ role: 'ai', content: 'Hello，我是天机AI助理' }];
+  } else {
+    // 当模态框打开时，滚动到顶部
+    nextTick(() => {
+      if (scrollableAreaRef.value) {
+        scrollableAreaRef.value.scrollTop = 0;
+      }
+    });
+  }
+});
+
+// ===== 拖拽逻辑 =====
 const { x, y, isDragging } = useDraggable(modalTitleRef);
 
-// 拖动开始时记录初始位置
 const startX = ref(0);
 const startY = ref(0);
 const startedDrag = ref(false);
-
-// 记录上一次变换位置
 const preTransformX = ref(0);
 const preTransformY = ref(0);
-
-// 界面边界限制
 const dragRect = ref({ left: 0, right: 0, top: 0, bottom: 0 });
+const transformX = ref(0);
+const transformY = ref(0);
 
-// 监听拖动开始
 watch([x, y], () => {
   if (!startedDrag.value) {
     startX.value = x.value;
     startY.value = y.value;
-
     const bodyRect = document.body.getBoundingClientRect();
     const titleRect = modalTitleRef.value?.getBoundingClientRect();
-
     if (titleRect) {
       dragRect.value.right = bodyRect.width - titleRect.width;
       dragRect.value.bottom = bodyRect.height - titleRect.height;
     }
-
     preTransformX.value = transformX.value;
     preTransformY.value = transformY.value;
   }
   startedDrag.value = true;
 });
 
-// 拖动结束重置状态
-watch(isDragging, (isDragging) => {
-  if (!isDragging) {
-    startedDrag.value = false;
-  }
+watch(isDragging, (dragging) => {
+  if (!dragging) startedDrag.value = false;
 });
 
-// 实时计算变换值
 watchEffect(() => {
   if (startedDrag.value) {
     transformX.value =
@@ -220,9 +293,6 @@ watchEffect(() => {
   }
 });
 
-// 计算 transform 样式
-const transformX = ref(0);
-const transformY = ref(0);
 const transformStyle = computed(() => ({
   transform: `translate(${transformX.value}px, ${transformY.value}px)`,
 }));
@@ -233,9 +303,10 @@ const transformStyle = computed(() => ({
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   background: white;
-  max-width: 400px;
-  min-width: 300px;
-  overflow: hidden;
+  width: 360px !important;
+  max-width: none !important;
+  min-width: auto !important;
+  pointer-events: auto;
 }
 
 .drag-handle {
@@ -263,35 +334,19 @@ const transformStyle = computed(() => ({
   font-size: 14px;
 }
 
-.assistant-content {
+/* 聊天容器 */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+  max-height: 80vh;
+}
+
+.scrollable-area {
+  flex: 1;
+  overflow-y: auto;
   padding: 16px;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
-.avatar-container {
-  text-align: center;
-  margin-bottom: 16px;
-  position: relative;
-}
-
-.avatar-container img {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.speech-bubble {
-  position: absolute;
-  top: -10px;
-  right: 10px;
-  background: #ff6b00;
-  color: white;
-  padding: 6px 12px;
-  border-radius: 16px;
-  font-size: 14px;
-  font-weight: bold;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  padding-bottom: 0;
 }
 
 .greeting {
@@ -312,27 +367,49 @@ const transformStyle = computed(() => ({
   margin: 8px 0 0;
 }
 
-.response-area {
-  background-color: #f0f8ff;
-  border-radius: 8px;
-  padding: 12px;
+/* 聊天消息 */
+.chat-history {
   margin-bottom: 16px;
-  min-height: 50px;
-  max-height: 200px;
-  overflow-y: auto;
-  max-height: 200px;
-  overflow-y: auto;
 }
 
-.ai-message {
-  color: #333;
+.message {
+  display: flex;
+  margin-bottom: 12px;
+}
+
+.message.user-message {
+  justify-content: flex-end;
+}
+
+.message.ai-message {
+  justify-content: flex-start;
+}
+
+.message-content {
+  padding: 10px 14px;
+  border-radius: 12px;
   font-size: 14px;
   line-height: 1.5;
   white-space: pre-wrap;
+  word-break: break-word;
+  max-width: 80%;
 }
 
+.user-message .message-content {
+  background-color: #e1f5fe;
+  color: #000;
+  border-bottom-right-radius: 4px;
+}
+
+.ai-message .message-content {
+  background-color: #f1f1f1;
+  color: #333;
+  border-bottom-left-radius: 4px;
+}
+
+/* 推荐问题 */
 .suggestions {
-  margin-bottom: 16px;
+  margin-top: 8px;
 }
 
 .suggestion-item {
@@ -355,22 +432,25 @@ const transformStyle = computed(() => ({
   font-size: 16px;
 }
 
+/* 输入区 */
 .input-area {
-  border-top: 1px solid #e0e0e0;
-  padding-top: 12px;
-  position: relative;
+  padding: 12px 16px;
+  border-top: 1px solid #eee;
+  background: white;
 }
 
 .input-box {
   width: 100%;
-  padding: 12px;
+  padding: 10px 12px;
   border: 1px solid #ddd;
-  border-radius: 8px;
+  border-radius: 20px;
   resize: none;
   outline: none;
   font-size: 14px;
-  line-height: 1.5;
-  background: #f9f9f9;
+  background: #fafafa;
+  box-sizing: border-box;
+  min-height: 24px;
+  max-height: 100px;
 }
 
 .input-actions {
@@ -378,10 +458,5 @@ const transformStyle = computed(() => ({
   justify-content: flex-end;
   gap: 8px;
   margin-top: 8px;
-}
-
-.input-actions button {
-  padding: 4px;
-  font-size: 14px;
 }
 </style>
