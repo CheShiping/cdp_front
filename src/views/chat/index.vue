@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, nextTick, h, computed } from 'vue';
-import { streamChat } from '@/ai/aliBaiLian'; // 导入流式聊天函数
+import { bot } from '@/ai/bot'; // 导入Bot实例
 import ChatHeader from './components/ChatHeader.vue';
 import ChatMessages from './components/ChatMessages.vue';
 import ChatInput from './components/ChatInput.vue';
@@ -74,14 +74,8 @@ const handleUserSubmit = async (value: string) => {
     // 创建新的 AbortController 用于可能的请求中断
     abortController.value = new AbortController();
     
-    // 调用流式聊天函数
-    const stream = streamChat(
-      messages.value.map(msg => ({
-        role: msg.role,
-        content: msg.content
-      })),
-      { signal: abortController.value.signal }
-    );
+    // 用流式聊天函数
+    const stream = await bot.askStreaming(value, { signal: abortController.value.signal });
     
     // 逐块处理流式响应
     for await (const chunk of stream) {

@@ -15,8 +15,10 @@
   },
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
+    "@langchain/community": "^1.1.1",
     "@langchain/core": "^1.1.6",
     "@langchain/openai": "^1.2.0",
+    "@langchain/textsplitters": "^1.0.1",
     "@vueuse/core": "^14.1.0",
     "ant-design-vue": "^4.2.6",
     "ant-design-x-vue": "^1.5.0",
