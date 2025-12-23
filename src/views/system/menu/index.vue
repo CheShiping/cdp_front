@@ -40,7 +40,14 @@
         <template v-else-if="column.key === 'actions'">
           <a-space>
             <a-button type="link" size="small">编辑</a-button>
-            <a-button type="link" size="small" danger>删除</a-button>
+            <a-popconfirm
+              :title="`确定要删除【${record.meta?.title}】菜单吗？`"
+              ok-text="确定"
+              cancel-text="取消"
+              @confirm="handleDelete(record.id)"
+            >
+              <a-button type="link" size="small" danger>删除</a-button>
+            </a-popconfirm>
             <a-button type="link" size="small" @click="handleAddChild(record)">新增下级</a-button>
           </a-space>
         </template>
@@ -50,11 +57,12 @@
 </template>
 
 <script setup lang="ts">
-import { postMenuTreeInfo } from '@/api/menu';
+import { postMenuTreeInfo, deleteMenuById } from '@/api/menu';
 import { ref, onMounted } from 'vue';
 import type { SysMenuQuery, SysMenuType } from '@/types/SysMenuType';
-import { HomeOutlined, SettingOutlined, UserOutlined, ShopOutlined, TagsOutlined, LinkOutlined } from '@ant-design/icons-vue';
+import { HomeOutlined, SettingOutlined, UserOutlined, ShopOutlined, TagsOutlined, LinkOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue';
 import SvgIcon from '@/components/svgIcon/index.vue';
+import { message } from 'ant-design-vue';
 
 // 表格列定义
 const columns = [
@@ -168,6 +176,19 @@ const rowSelection = ref({
 const handleAddChild = (record: SysMenuType) => {
   console.log('Add child for:', record);
   // 这里可以添加具体的业务逻辑
+};
+
+// 删除菜单
+const handleDelete = async (id: string) => {
+  try {
+    const response = await deleteMenuById(id);
+    message.success(response.message || '删除成功');
+    // 重新获取菜单列表
+    getMenuTree();
+  } catch (error: any) {
+    console.error('删除菜单失败:', error);
+    message.error(error.message || '删除失败，请重试');
+  }
 };
 
 onMounted(() => {

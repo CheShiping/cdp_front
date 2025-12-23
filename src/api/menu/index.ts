@@ -1,8 +1,12 @@
 import { request } from "@/utils/request";
-import type { SysMenuQuery } from "@/types/SysMenuType";
+import type { SysMenuQuery, SysMenuType } from "@/types/SysMenuType";
 
 const postMenuTreeInfo = async (data: SysMenuQuery) => {
-  return await request("/system/menu/search", "post", data)
+  return await request<SysMenuType[]>("/system/menu/search", "post", data)
 }
 
-export { postMenuTreeInfo }
+const deleteMenuById = async (id: string) => {
+  return await request("/system/menu", "delete", { id })
+}
+
+export { postMenuTreeInfo, deleteMenuById }
