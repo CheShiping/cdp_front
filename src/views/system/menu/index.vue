@@ -7,6 +7,8 @@
       <a-form-item>
         <a-button type="primary" @click="handleSearch">查询</a-button>
         <a-button @click="handleReset" style="margin-left: 8px;">重置</a-button>
+        <!-- 新增一级菜单按钮 -->
+        <a-button type="primary" style="margin-left: 8px;" @click="showAddForm(null)">新增菜单</a-button>
       </a-form-item>
     </a-form>
 
@@ -21,8 +23,7 @@
       <template #bodyCell="{ column, text, record }">
         <template v-if="column.key === 'name'">
           <span>
-            <svg-icon v-if="record.meta.icon && record.meta.icon.startsWith('svg-')" :name="record.meta.icon.substring(4)" class="menu-icon" />
-            <component v-else-if="getIconComponent(record.meta.icon)" :is="getIconComponent(record.meta.icon)" class="menu-icon" />
+            <component v-if="getIconComponent(record.meta.icon)" :is="getIconComponent(record.meta.icon)" class="menu-icon" />
             <span v-else style="display: inline-block; width: 1em;"></span>
             <span style="margin-left: 8px;">{{ record.meta.title }}</span>
           </span>
@@ -39,7 +40,7 @@
         </template>
         <template v-else-if="column.key === 'actions'">
           <a-space>
-            <a-button type="link" size="small">编辑</a-button>
+            <a-button type="link" size="small" @click="showEditForm(record)">编辑</a-button>
             <a-popconfirm
               :title="`确定要删除【${record.meta?.title}】菜单吗？`"
               ok-text="确定"
@@ -48,11 +49,19 @@
             >
               <a-button type="link" size="small" danger>删除</a-button>
             </a-popconfirm>
-            <a-button type="link" size="small" @click="handleAddChild(record)">新增下级</a-button>
+            <a-button type="link" size="small" @click="showAddForm(record.id)">新增下级</a-button>
           </a-space>
         </template>
       </template>
     </a-table>
+
+    <!-- 侧边弹框组件 -->
+    <MenuForm
+      v-model:visible="addFormVisible"
+      :form-title="formTitle"
+      :parent-id="parentId"
+      @submit="handleAddSubmit"
+    />
   </div>
 </template>
 
@@ -61,8 +70,8 @@ import { postMenuTreeInfo, deleteMenuById } from '@/api/menu';
 import { ref, onMounted } from 'vue';
 import type { SysMenuQuery, SysMenuType } from '@/types/SysMenuType';
 import { HomeOutlined, SettingOutlined, UserOutlined, ShopOutlined, TagsOutlined, LinkOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue';
-import SvgIcon from '@/components/svgIcon/index.vue';
 import { message } from 'ant-design-vue';
+import MenuForm from './components/MenuForm.vue'; // 引入侧边弹框组件
 
 // 表格列定义
 const columns = [
@@ -172,12 +181,6 @@ const rowSelection = ref({
   },
 });
 
-// 新增下级
-const handleAddChild = (record: SysMenuType) => {
-  console.log('Add child for:', record);
-  // 这里可以添加具体的业务逻辑
-};
-
 // 删除菜单
 const handleDelete = async (id: string) => {
   try {
@@ -189,6 +192,37 @@ const handleDelete = async (id: string) => {
     console.error('删除菜单失败:', error);
     message.error(error.message || '删除失败，请重试');
   }
+};
+
+// 控制侧边弹框显示与隐藏
+const addFormVisible = ref(false);
+const formTitle = ref('新增菜单');
+const parentId = ref<string>(); // 修改类型定义，从string | null改为string | undefined
+
+// 显示新增表单
+const showAddForm = (id: string | null) => {
+  console.log('showAddForm called with id:', id); // 调试日志
+  parentId.value = id || undefined; // 当id为null时转换为undefined
+  formTitle.value = id ? '新增下级菜单' : '新增一级菜单';
+  addFormVisible.value = true; // 确保设置为 true
+};
+
+// 显示编辑表单
+const showEditForm = (record: SysMenuType) => {
+  console.log('showEditForm called with record:', record); // 调试日志
+  parentId.value = record.parentId || undefined;
+  formTitle.value = '编辑菜单';
+  addFormVisible.value = true; // 确保设置为 true
+};
+
+// 处理新增提交
+const handleAddSubmit = (data: SysMenuType) => {
+  console.log('新增菜单数据:', data);
+  // 这里可以调用 API 提交数据
+  // 示例：await createMenu(data);
+  message.success('新增成功');
+  getMenuTree(); // 刷新列表
+  addFormVisible.value = false; // 关闭抽屉
 };
 
 onMounted(() => {
