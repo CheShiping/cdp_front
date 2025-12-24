@@ -9,10 +9,12 @@
     <a-form :model="formData" :rules="formRules" :label-col="{ span: 4 }" :wrapper-col="{ span: 16 }" ref="formRef">
 
       <a-form-item label="上级菜单" name="parentId">
-        <a-select v-model:value="formData.parentId" placeholder="请选择上级菜单">
-          <!-- 假设这里需要动态加载上级菜单数据 -->
-          <a-select-option value="">无</a-select-option>
-        </a-select>
+        <a-cascader
+          v-model:value="formData.parentId"
+          :options="options"
+          expand-trigger="hover"
+          placeholder="请选择上级菜单"
+        />
       </a-form-item>
 
       <a-form-item label="菜单类型:" name="type">
@@ -46,19 +48,19 @@
         <a-input v-model:value="formData.redirect" placeholder="路由重定向地址redirect值" />
       </a-form-item>
 
-<a-form-item label="是否隐藏:" name="hidden">
-  <a-radio-group v-model:value="formData.hidden">
-    <a-radio :value="false">不隐藏</a-radio>
-    <a-radio :value="true">隐藏</a-radio>
-  </a-radio-group>
-</a-form-item>
+      <a-form-item label="是否隐藏:" name="hidden">
+        <a-radio-group v-model:value="formData.hidden">
+          <a-radio :value="false">不隐藏</a-radio>
+          <a-radio :value="true">隐藏</a-radio>
+        </a-radio-group>
+      </a-form-item>
 
-<a-form-item label="是否缓存:" name="cache">
-  <a-radio-group v-model:value="formData.cache">
-    <a-radio :value="false">不缓存</a-radio>
-    <a-radio :value="true">缓存</a-radio>
-  </a-radio-group>
-</a-form-item>
+      <a-form-item label="是否缓存:" name="cache">
+        <a-radio-group v-model:value="formData.cache">
+          <a-radio :value="false">不缓存</a-radio>
+          <a-radio :value="true">缓存</a-radio>
+        </a-radio-group>
+      </a-form-item>
 
       <a-form-item label="排序:" name="sort">
         <a-input-number v-model:value="formData.sort" :min="0" />
@@ -78,9 +80,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import type { SysMenuType } from '@/types/SysMenuType';
+import { onMounted, ref } from 'vue';
+import type { SysMenuQuery, SysMenuType } from '@/types/SysMenuType';
 import type { FormInstance } from 'ant-design-vue';
+import { getMenuSelect } from '@/api/menu';
 
 interface Props {
   visible: boolean;
@@ -93,8 +96,38 @@ interface Emits {
   (e: 'submit', data: SysMenuType): void;
 }
 
+interface Option {
+  value: string | number;
+  label?: any;
+  disabled?: boolean;
+  children?: Option[];
+  // 标记是否为叶子节点，设置了 `loadData` 时有效
+  // 设为 `false` 时会强制标记为父节点，即使当前节点没有 children，也会显示展开图标
+  isLeaf?: boolean;
+}
+
 const props = defineProps<Props>();
 const emits = defineEmits<Emits>();
+
+const options = ref()
+const loadMenuSelect = async () => {
+  const res = await getMenuSelect()
+  if (res.code !== 200) return;
+  
+  // 转换API返回的数据为Cascader所需的格式
+  const transformMenuData = (menuList: any[]): Option[] => {
+    return menuList.map(item => ({
+      value: item.id,
+      label: item.title,
+      disabled: item.disabled || false,
+      children: item.children ? transformMenuData(item.children) : undefined
+    }))
+  }
+  
+  options.value = transformMenuData(res.data as SysMenuType[]);
+}
+
+onMounted(() => loadMenuSelect())
 
 // 表单数据
 // 修改 formData 结构

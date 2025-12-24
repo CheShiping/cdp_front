@@ -9,4 +9,8 @@ const deleteMenuById = async (id: string) => {
   return await request("/system/menu", "delete", { id })
 }
 
-export { postMenuTreeInfo, deleteMenuById }
+const getMenuSelect = async () => {
+  return await request("/system/menu/select")
+}
+
+export { postMenuTreeInfo, deleteMenuById, getMenuSelect }

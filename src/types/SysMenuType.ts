@@ -27,6 +27,6 @@ export interface SysMenuType {
   updateTime: string; // 更新时间
   children: SysMenuType[]; // 子菜单
   routeName: string; // 新增字段
-    hidden: false, // 提升
+  hidden: false, // 提升
   cache: false   // 提升
 }
