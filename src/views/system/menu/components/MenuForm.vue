@@ -80,15 +80,16 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import type { SysMenuQuery, SysMenuType } from '@/types/SysMenuType';
-import type { FormInstance } from 'ant-design-vue';
-import { getMenuSelect } from '@/api/menu';
+import { message, type FormInstance } from 'ant-design-vue';
+import { getMenuSelect, addMenu, updateMenu } from '@/api/menu';
 
 interface Props {
   visible: boolean;
   formTitle: string;
   parentId?: string; // 用于新增子菜单时传递父级ID
+  currentRecord?: SysMenuType; // 当前编辑的记录
 }
 
 interface Emits {
@@ -129,9 +130,8 @@ const loadMenuSelect = async () => {
 
 onMounted(() => loadMenuSelect())
 
-// 表单数据
-// 修改 formData 结构
-const formData = ref<SysMenuType>({
+// 默认表单数据 - 用于初始化和重置
+const defaultFormData: SysMenuType = {
   id: '',
   name: '',
   path: '',
@@ -156,7 +156,37 @@ const formData = ref<SysMenuType>({
   routeName: '',
   hidden: false, // 提升
   cache: false   // 提升
-});
+};
+
+// 表单数据
+const formData = ref<SysMenuType>({ ...defaultFormData });
+
+// 监听属性变化，判断是添加还是编辑
+const isEdit = ref(false);
+
+// 重置表单数据
+const resetForm = () => {
+  formData.value = { ...defaultFormData };
+};
+
+// 监听 currentRecord 变化，如果是编辑状态，则填充表单数据
+watch(() => props.currentRecord, (newVal) => {
+  if (newVal) {
+    isEdit.value = true;
+    // 拷贝数据到表单
+    formData.value = { ...newVal };
+    // 同步提升的字段
+    formData.value.hidden = newVal.meta?.hidden || false;
+    formData.value.cache = newVal.meta?.cache || false;
+  } else {
+    isEdit.value = false;
+    resetForm();
+    // 如果有parentId，设置到表单中
+    if (props.parentId) {
+      formData.value.parentId = props.parentId;
+    }
+  }
+}, { immediate: true });
 
 // 表单验证规则
 const formRules = {
@@ -202,8 +232,27 @@ const handleSubmit = async () => {
     formData.value.meta.hidden = formData.value.hidden;
     formData.value.meta.cache = formData.value.cache;
 
-    emits('submit', formData.value);
-    emits('update:visible', false);
+    let response;
+    if (isEdit.value) {
+      // 编辑操作
+      response = await updateMenu(formData.value);
+    } else {
+      // 添加操作
+      response = await addMenu(formData.value);
+    }
+
+    if (response.code === 200) {
+      // 通过emit提交数据
+      emits('submit', formData.value);
+      emits('update:visible', false);
+      // 显示成功消息
+      message.success(response.message || (isEdit.value ? '编辑成功' : '新增成功'));
+      
+      // 重置表单
+      resetForm();
+    } else {
+      message.error(response.message || (isEdit.value ? '编辑失败' : '新增失败'));
+    }
   } catch (error) {
     console.log('表单验证失败', error);
   }
@@ -212,6 +261,8 @@ const handleSubmit = async () => {
 // 关闭抽屉
 const handleCancel = () => {
   emits('update:visible', false);
+  // 关闭时重置表单
+  resetForm();
 };
 </script>
 

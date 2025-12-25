@@ -13,4 +13,12 @@ const getMenuSelect = async () => {
   return await request("/system/menu/select")
 }
 
-export { postMenuTreeInfo, deleteMenuById, getMenuSelect }
+const addMenu = async (data: SysMenuType) => {
+  return await request<SysMenuType>("/system/menu", "post", data)
+}
+
+const updateMenu = async (data: SysMenuType) => {
+  return await request<SysMenuType>("/system/menu", "put", data)
+}
+
+export { postMenuTreeInfo, deleteMenuById, getMenuSelect, addMenu, updateMenu }

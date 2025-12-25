@@ -24,7 +24,7 @@ class Bot {
         apiKey: import.meta.env.VITE_SILICONFLOW_API_KEY || "sk----", // 替换为实际 API Key
         baseURL: "https://api.siliconflow.cn/v1",
       },
-      model: "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B", // 指定使用的模型
+      model: "THUDM/GLM-4-9B-0414", // 指定使用的模型
     });
   }
 

@@ -60,13 +60,14 @@
       v-model:visible="addFormVisible"
       :form-title="formTitle"
       :parent-id="parentId"
+      :current-record="currentRecord"
       @submit="handleAddSubmit"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { postMenuTreeInfo, deleteMenuById } from '@/api/menu';
+import { postMenuTreeInfo, deleteMenuById, addMenu, updateMenu } from '@/api/menu';
 import { ref, onMounted } from 'vue';
 import type { SysMenuQuery, SysMenuType } from '@/types/SysMenuType';
 import { HomeOutlined, SettingOutlined, UserOutlined, ShopOutlined, TagsOutlined, LinkOutlined, QuestionCircleOutlined } from '@ant-design/icons-vue';
@@ -198,12 +199,14 @@ const handleDelete = async (id: string) => {
 const addFormVisible = ref(false);
 const formTitle = ref('新增菜单');
 const parentId = ref<string>(); // 修改类型定义，从string | null改为string | undefined
+const currentRecord = ref<SysMenuType | undefined>(undefined); // 修改类型定义，从SysMenuType | null改为SysMenuType | undefined，初始值也改为undefined
 
 // 显示新增表单
 const showAddForm = (id: string | null) => {
   console.log('showAddForm called with id:', id); // 调试日志
   parentId.value = id || undefined; // 当id为null时转换为undefined
   formTitle.value = id ? '新增下级菜单' : '新增一级菜单';
+  currentRecord.value = undefined; // 重置当前记录为undefined，表示新增
   addFormVisible.value = true; // 确保设置为 true
 };
 
@@ -212,17 +215,16 @@ const showEditForm = (record: SysMenuType) => {
   console.log('showEditForm called with record:', record); // 调试日志
   parentId.value = record.parentId || undefined;
   formTitle.value = '编辑菜单';
+  currentRecord.value = record; // 设置当前记录，表示编辑
   addFormVisible.value = true; // 确保设置为 true
 };
 
 // 处理新增提交
 const handleAddSubmit = (data: SysMenuType) => {
   console.log('新增菜单数据:', data);
-  // 这里可以调用 API 提交数据
-  // 示例：await createMenu(data);
-  message.success('新增成功');
   getMenuTree(); // 刷新列表
   addFormVisible.value = false; // 关闭抽屉
+  currentRecord.value = undefined; // 重置当前记录为undefined
 };
 
 onMounted(() => {
